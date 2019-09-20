@@ -18,7 +18,7 @@ gem 'omniauth-confluence-oauth2'
 
 Then `bundle install`.
 
-## Atlassian API Setup
+## Confluence API Setup
 
 * Go to 'https://developer.atlassian.com/apps/'
 * Create a new app.
@@ -26,7 +26,7 @@ Then `bundle install`.
 * Under APIs and Features, add the "Authorization code grants" feature.
   Configure the feature with your callback URL (something like
   http://localhost:3000/auth/confluence_oauth2/callback).
-* Under APIs and Features, add the "Confluence platform REST API" API. 
+* Under APIs and Features, add the "Confluence platform REST API" API.
 
 ## Usage
 
@@ -35,7 +35,7 @@ Here's an example for adding the middleware to a Rails app in
 
 ```ruby
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :confluence_oauth2, ENV['ATLASSIAN_CLIENT_ID'], ENV['ATLASSIAN_CLIENT_SECRET'],
+  provider :confluence_oauth2, ENV['CONFLUENCE_CLIENT_ID'], ENV['CONFLUENCE_CLIENT_SECRET'],
     scope: "offline_access read:me read:confluence-space.summary read:confluence-props read:confluence-content.all read:confluence-content.summary search:confluence",
     prompt: "consent"
 end
@@ -47,7 +47,7 @@ your app in the Atlassian UI.
 You can now access the OmniAuth Confluence OAuth2 URL: `/auth/confluence_oauth2`
 
 NOTE: While developing your application, if you change the scope in the
-initializer you will need to restart your app server. 
+initializer you will need to restart your app server.
 
 ## Auth Hash
 
@@ -61,7 +61,7 @@ continues to have access to the sites you expect.
 
 ```ruby
 {
-  "provider" => "atlassian_oauth2",
+  "provider" => "confluence_oauth2",
   "uid" => "100000000000000000000",
   "info" => {
     "name" => "John Smith",

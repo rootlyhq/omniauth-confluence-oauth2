@@ -9,8 +9,8 @@ Gem::Specification.new do |gem|
   gem.name          = 'omniauth-confluence-oauth2'
   gem.version       = OmniAuth::ConfluenceOauth2::VERSION
   gem.license       = 'MIT'
-  gem.summary       = %(An Confluence OAuth2 strategy for OmniAuth 1.x)
-  gem.description   = %(An Confluence OAuth2 strategy for OmniAuth 1.x. This allows you to login to Atlassian with your ruby app.)
+  gem.summary       = %(A Confluence OAuth2 strategy for OmniAuth 1.x)
+  gem.description   = %(A Confluence OAuth2 strategy for OmniAuth 1.x. This allows you to login to Confluence with your Ruby app.)
   gem.authors       = ['Ben Standefer']
   gem.email         = ['benstandefer@gmail.com']
   gem.homepage      = 'https://github.com/aguynamedben/omniauth-atlassian-oauth2'
