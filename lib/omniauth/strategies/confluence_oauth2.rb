@@ -26,12 +26,12 @@ module OmniAuth
       option :new_scopes, false
 
       uid do
-        raw_info['myself']['accountId']
+        raw_info['myself'].dig('account_id') || raw_info['myself'].dig('accountId')
       end
 
       info do
         {
-            name: raw_info['myself']['displayName'],
+            name: raw_info['myself'].dig('name') || raw_info['myself'].dig('displayName'),
             email: raw_info['myself']['email']
         }.compact
       end
