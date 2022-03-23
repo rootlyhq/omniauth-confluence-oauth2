@@ -26,17 +26,14 @@ module OmniAuth
       option :new_scopes, false
 
       uid do
-        raw_info['myself']['account_id']
+        raw_info['myself']['accountId']
       end
 
       info do
         {
-            name: raw_info['myself']['name'],
-            email: raw_info['myself']['email'],
-            nickname: raw_info['myself']['nickname'],
-            location: raw_info['myself']['zoneinfo'],
-            image: raw_info['myself']['picture']
-        }
+            name: raw_info['myself']['displayName'],
+            email: raw_info['myself']['email']
+        }.compact
       end
 
       extra do
@@ -48,15 +45,13 @@ module OmniAuth
       def raw_info
         return @raw_info if @raw_info
 
-        if options.new_scopes
-          access_token.options[:mode] = :header
-          myself ||= access_token.get('wiki/rest/api/user/current', :headers => { 'Content-Type' => 'application/json' }).parsed
-        else
-          # NOTE: api.atlassian.com, not auth.atlassian.com!
-          accessible_resources_url = 'https://api.atlassian.com/oauth/token/accessible-resources'
-          sites = JSON.parse(access_token.get(accessible_resources_url).body)
+        sites = access_token.get('oauth/token/accessible-resources', :headers => { 'Content-Type' => 'application/json' }).parsed
 
-          myself_url = "https://api.atlassian.com/me"
+        if options.new_scopes
+          cloud_id = sites.first['id']
+          myself ||= access_token.get("ex/confluence/#{cloud_id}/wiki/rest/api/user/current", :headers => { 'Content-Type' => 'application/json' }).parsed
+        else
+          myself ||= access_token.get('me', :headers => { 'Content-Type' => 'application/json' }).parsed
           myself = JSON.parse(access_token.get(myself_url).body)
         end
 
