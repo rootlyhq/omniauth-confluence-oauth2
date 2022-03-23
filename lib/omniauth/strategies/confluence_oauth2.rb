@@ -52,7 +52,6 @@ module OmniAuth
           myself ||= access_token.get("ex/confluence/#{cloud_id}/wiki/rest/api/user/current", :headers => { 'Content-Type' => 'application/json' }).parsed
         else
           myself ||= access_token.get('me', :headers => { 'Content-Type' => 'application/json' }).parsed
-          myself = JSON.parse(access_token.get(myself_url).body)
         end
 
         @raw_info ||= {
