@@ -45,16 +45,49 @@ module OmniAuth
       def raw_info
         return @raw_info if @raw_info
 
-        sites = access_token.get('oauth/token/accessible-resources', :headers => { 'Content-Type' => 'application/json' }).parsed
+        # NOTE: api.atlassian.com, not auth.atlassian.com!
+        accessible_resources_url = 'https://api.atlassian.com/oauth/token/accessible-resources'
+        sites = JSON.parse(access_token.get(accessible_resources_url).body)
 
-        if options.new_scopes
-          cloud_id = sites.first['id']
-          myself ||= access_token.get("ex/confluence/#{cloud_id}/wiki/rest/api/user/current", :headers => { 'Content-Type' => 'application/json' }).parsed
+        # Confluence's OAuth gives us many potential sites. To request information
+        # about the user for the OmniAuth hash, pick the first one that has the
+        # necessary Confluence user scopes.
+        confluence_user_scopes = if options.new_scopes
+          %w'read:user:confluence read:content-details:confluence'
         else
-          myself ||= access_token.get('me', :headers => { 'Content-Type' => 'application/json' }).parsed
+          %w'read:confluence-user'
         end
 
+        sites = sites.filter do |candidate_site|
+          candidate_site['scopes'].intersect?(confluence_user_scopes)
+        end
+
+        if sites.empty?
+          raise "No sites found with scope #{confluence_user_scopes}, please ensure the scope #{confluence_user_scopes} is added to your OmniAuth config"
+        end
+
+        site = nil
+        myself = nil
+
+        sites.each do |candidate_site|
+          begin
+            if options.new_scopes
+              myself = access_token.get("ex/confluence/#{candidate_site["id"]}/wiki/rest/api/user/current", :headers => { 'Content-Type' => 'application/json' }).parsed
+            else
+              myself = access_token.get('me', :headers => { 'Content-Type' => 'application/json' }).parsed
+            end
+            site = candidate_site
+            break
+          rescue ::OAuth2::Error
+            next
+          end
+        end
+
+        raise StandardError, 'Cannot find valid site' unless site
+        raise StandardError, 'Cannot fetch current user' unless myself
+
         @raw_info ||= {
+          'site' => site,
           'sites' => sites,
           'myself' => myself
         }
